@@ -16,7 +16,7 @@ func main() {
 	}
 
 	pattern := os.Args[2]
-
+	fmt.Println(pattern)
 	line, err := io.ReadAll(os.Stdin) // assume we're only dealing with a single line
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: read input text: %v\n", err)
@@ -38,7 +38,7 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	if utf8.RuneCountInString(pattern) <= 1 || !isSpecialPattern(pattern) {
+	if utf8.RuneCountInString(pattern) != 1 && !isSpecialPattern(pattern) {
 		return false, fmt.Errorf("unsupported pattern: %q", pattern)
 	}
 
@@ -51,6 +51,7 @@ func matchLine(line []byte, pattern string) (bool, error) {
 	case "\\d":
 		pattern = "0123456789"
 	}
+	fmt.Println(pattern)
 	ok = bytes.ContainsAny(line, pattern)
 
 	if ok {
