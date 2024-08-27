@@ -1,7 +1,6 @@
 package main
 
 import (
-	// Uncomment this to pass the first stage
 	"bytes"
 	"fmt"
 	"io"
@@ -31,6 +30,7 @@ func main() {
 	}
 
 	if !ok {
+		fmt.Println("Pattern matches not found")
 		os.Exit(1)
 	}
 
@@ -38,7 +38,7 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	if utf8.RuneCountInString(pattern) != 1 {
+	if utf8.RuneCountInString(pattern) < 1 || !isSpecialPattern(pattern) {
 		return false, fmt.Errorf("unsupported pattern: %q", pattern)
 	}
 
@@ -47,8 +47,25 @@ func matchLine(line []byte, pattern string) (bool, error) {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
-	// Uncomment this to pass the first stage
+	switch pattern {
+	case "\\d":
+		pattern = "0123456789"
+	}
 	ok = bytes.ContainsAny(line, pattern)
 
+	if ok {
+		fmt.Println("Pattern matches found")
+	}
 	return ok, nil
+}
+
+func isSpecialPattern(pattern string) bool {
+	specialPattern := []string{"\\d"}
+
+	for _, str := range specialPattern {
+		if pattern == str {
+			return true
+		}
+	}
+	return false
 }
