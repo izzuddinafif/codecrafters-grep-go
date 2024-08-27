@@ -38,7 +38,7 @@ func main() {
 }
 
 func matchLine(line []byte, pattern string) (bool, error) {
-	if utf8.RuneCountInString(pattern) < 1 || !isSpecialPattern(pattern) {
+	if utf8.RuneCountInString(pattern) <= 1 || !isSpecialPattern(pattern) {
 		return false, fmt.Errorf("unsupported pattern: %q", pattern)
 	}
 
