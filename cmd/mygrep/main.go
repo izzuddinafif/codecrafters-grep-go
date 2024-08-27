@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -49,10 +50,10 @@ func matchLine(line []byte, pattern string) (bool, error) {
 
 	switch pattern {
 	case "\\d":
-		pattern = "0123456789"
+		ok = bytes.ContainsAny(line, "0123456789")
+	case "\\w":
+		ok = isAlphanumeric(string(line))
 	}
-	fmt.Println(pattern)
-	ok = bytes.ContainsAny(line, pattern)
 
 	if ok {
 		fmt.Println("Pattern matches found")
@@ -61,7 +62,7 @@ func matchLine(line []byte, pattern string) (bool, error) {
 }
 
 func isSpecialPattern(pattern string) bool {
-	specialPattern := []string{"\\d"}
+	specialPattern := []string{"\\d", "\\w"}
 
 	for _, str := range specialPattern {
 		if pattern == str {
@@ -69,4 +70,13 @@ func isSpecialPattern(pattern string) bool {
 		}
 	}
 	return false
+}
+
+func isAlphanumeric(line string) bool {
+	for _, r := range line {
+		if !unicode.IsDigit(r) && !unicode.IsLetter(r) && r != '_' {
+			return false
+		}
+	}
+	return true
 }
