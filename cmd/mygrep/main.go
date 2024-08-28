@@ -76,7 +76,7 @@ func isSpecialPattern(pattern string) bool {
 
 func isAlphanumeric(line string) bool {
 	for _, r := range line {
-		if !unicode.IsDigit(r) && !unicode.IsLetter(r) && r != '_' {
+		if !unicode.IsDigit(r) && !unicode.IsLetter(r) {
 			return false
 		}
 	}
