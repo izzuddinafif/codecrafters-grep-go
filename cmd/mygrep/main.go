@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -24,7 +25,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	ok, err := matchLine(line, pattern)
+	ok, err := matchLine(line, &pattern)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
@@ -38,9 +39,9 @@ func main() {
 	// default exit code is 0 which means success
 }
 
-func matchLine(line []byte, pattern string) (bool, error) {
-	if utf8.RuneCountInString(pattern) != 1 && !isSpecialPattern(pattern) {
-		return false, fmt.Errorf("unsupported pattern: %q", pattern)
+func matchLine(line []byte, pattern *string) (bool, error) {
+	if utf8.RuneCountInString(*pattern) != 1 && !isSpecialPattern(pattern) {
+		return false, fmt.Errorf("unsupported pattern: %q", *pattern)
 	}
 
 	var ok bool
@@ -48,13 +49,13 @@ func matchLine(line []byte, pattern string) (bool, error) {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
-	switch pattern {
+	switch *pattern {
 	case "\\d":
 		ok = bytes.ContainsAny(line, "0123456789")
 	case "\\w":
 		ok = isAlphanumeric(string(line))
 	default:
-		ok = bytes.ContainsAny(line, pattern)
+		ok = bytes.ContainsAny(line, *pattern)
 	}
 
 	if ok {
@@ -63,13 +64,17 @@ func matchLine(line []byte, pattern string) (bool, error) {
 	return ok, nil
 }
 
-func isSpecialPattern(pattern string) bool {
+func isSpecialPattern(pattern *string) bool {
 	specialPattern := []string{"\\d", "\\w"}
-
-	for _, str := range specialPattern {
-		if pattern == str {
+	for _, ptrn := range specialPattern {
+		if *pattern == ptrn {
 			return true
 		}
+	}
+
+	if strings.HasPrefix(*pattern, "[") && strings.HasSuffix(*pattern, "]") {
+		*pattern = extractBetweenBrackets(*pattern)
+		return true
 	}
 	return false
 }
@@ -81,4 +86,11 @@ func isAlphanumeric(line string) bool {
 		}
 	}
 	return true
+}
+
+func extractBetweenBrackets(pattern string) string {
+	start := strings.Index(pattern, "[")
+	end := strings.Index(pattern, "]")
+
+	return pattern[start+1 : end]
 }
