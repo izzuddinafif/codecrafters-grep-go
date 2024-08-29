@@ -26,13 +26,13 @@ func main() {
 	}
 
 	ok, err := matchLine(line, &pattern)
+	fmt.Println(ok)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(2)
 	}
 
 	if !ok {
-		fmt.Println("Pattern matches not found")
 		os.Exit(1)
 	}
 
@@ -46,24 +46,32 @@ func matchLine(line []byte, pattern *string) (bool, error) {
 
 	var ok bool
 
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	fmt.Println("Logs from your program will appear here!")
-
-	switch *pattern {
-	case "\\d":
-		ok = bytes.ContainsAny(line, "0123456789")
-	case "\\w":
-		ok = isAlphanumeric(string(line))
-	default:
-		ok = bytes.ContainsAny(line, *pattern)
-	}
-
-	if ok {
+	if ok = checkPattern(line, pattern); ok {
 		fmt.Println("Pattern matches found")
+		return ok, nil
 	}
 	return ok, nil
 }
 
+func checkPattern(line []byte, pattern *string) bool {
+	var ok bool
+	switch {
+	case *pattern == "\\d":
+		ok = bytes.ContainsAny(line, "0123456789")
+	case *pattern == "\\w":
+		ok = isAlphanumeric(string(line))
+	case strings.HasPrefix(*pattern, "[") && strings.HasSuffix(*pattern, "]"):
+		extractBetweenSquareBrackets(pattern)
+		ok = bytes.ContainsAny(line, *pattern)
+	case strings.HasPrefix(*pattern, "^"):
+		extractAfterCaret(pattern)
+		ok = !bytes.ContainsAny(line, *pattern)
+	default:
+		ok = bytes.ContainsAny(line, *pattern)
+	}
+	println(*pattern)
+	return ok
+}
 func isSpecialPattern(pattern *string) bool {
 	specialPattern := []string{"\\d", "\\w"}
 	for _, ptrn := range specialPattern {
@@ -73,7 +81,13 @@ func isSpecialPattern(pattern *string) bool {
 	}
 
 	if strings.HasPrefix(*pattern, "[") && strings.HasSuffix(*pattern, "]") {
-		*pattern = extractBetweenBrackets(*pattern)
+		extractBetweenSquareBrackets(pattern)
+		fmt.Println(*pattern)
+		return true
+	}
+
+	if strings.HasPrefix(*pattern, "^") {
+		extractAfterCaret(pattern)
 		return true
 	}
 	return false
@@ -88,9 +102,10 @@ func isAlphanumeric(line string) bool {
 	return true
 }
 
-func extractBetweenBrackets(pattern string) string {
-	start := strings.Index(pattern, "[")
-	end := strings.Index(pattern, "]")
+func extractBetweenSquareBrackets(pattern *string) {
+	*pattern = (*pattern)[strings.Index(*pattern, "[")+1 : strings.Index(*pattern, "]")]
+}
 
-	return pattern[start+1 : end]
+func extractAfterCaret(pattern *string) {
+	*pattern = (*pattern)[strings.Index(*pattern, "^")+1:]
 }
