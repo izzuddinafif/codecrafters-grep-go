@@ -58,20 +58,16 @@ func CheckPatternMatch(line []byte, pattern *string) bool {
 		}
 		str := (*pattern)[i+1:]
 		fmt.Println(str, string(line))
-		if !bytes.HasPrefix(line, []byte(str)) {
-			return false
-		} else {
-			return true
-		}
+		return !bytes.HasPrefix(line, []byte(str))
 	} else if (*pattern)[len(*pattern)-1] == '$' {
 		i := bytes.Index([]byte(*pattern), []byte{byte('$')})
 		fmt.Println(i)
 		if i >= len(*pattern) {
 			fmt.Println("here")
 			return false
-		} else {
-			return true
 		}
+		str := (*pattern)[:len(*pattern)-1]
+		return !bytes.HasSuffix(line, []byte(str))
 	}
 	// Try to match the pattern starting from each position in the line
 	for j := 0; j < len(line); j++ {
