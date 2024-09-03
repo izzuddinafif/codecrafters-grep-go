@@ -53,11 +53,20 @@ func CheckPatternMatch(line []byte, pattern *string) bool {
 		i := bytes.Index([]byte(*pattern), []byte{byte('^')})
 		fmt.Println(i)
 		if i+1 >= len(*pattern) {
+			fmt.Println("here")
 			return false
 		}
 		str := (*pattern)[i+1:]
 		fmt.Println(str, string(line))
 		if !bytes.HasPrefix(line, []byte(str)) {
+			return false
+		} else {
+			return true
+		}
+	} else if (*pattern)[len(*pattern)-1] == '$' {
+		i := bytes.Index([]byte(*pattern), []byte{byte('$')})
+		fmt.Println(i)
+		if i >= len(*pattern) {
 			fmt.Println("here")
 			return false
 		} else {
