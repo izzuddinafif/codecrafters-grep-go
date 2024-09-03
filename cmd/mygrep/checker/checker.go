@@ -122,6 +122,11 @@ func matchFrom(line []byte, pattern *string) bool {
 			}
 		} else {
 			if pt != li { // normal pattern
+				if i <= len(*pattern)-1 && (*pattern)[i+1] == '+' {
+					fmt.Println(string(pt), "here")
+
+					return true
+				}
 				return false
 			}
 		}
@@ -153,8 +158,4 @@ func matchSpecialCharacter(patternChar rune, lineChar rune) bool {
 	default:
 		return false
 	}
-}
-
-func CheckCarat() {
-
 }
