@@ -67,7 +67,16 @@ func matchFrom(line []byte, pattern *string) bool {
 		pt := rune((*pattern)[i])
 		li := rune(line[j])
 
-		if pt == '\\' {
+		if pt == '^' {
+			i++
+			if i >= len(*pattern) {
+				return false
+			}
+			str := (*pattern)[i:]
+			if !bytes.HasPrefix(line, []byte(str)) {
+				return false
+			}
+		} else if pt == '\\' {
 			i++
 			if i >= len(*pattern) {
 				return false
@@ -77,8 +86,6 @@ func matchFrom(line []byte, pattern *string) bool {
 			if !matchSpecialCharacter(pt, li) {
 				return false
 			}
-
-			fmt.Println("here")
 		} else if pt == '[' {
 			end := findClosingBracket(*pattern, i)
 			if end == -1 {
@@ -132,7 +139,6 @@ func matchSpecialCharacter(patternChar rune, lineChar rune) bool {
 	case 'w':
 		return h.IsWordCharacter(lineChar)
 	case 'd':
-		fmt.Println(h.IsDigit(lineChar))
 		return h.IsDigit(lineChar)
 	default:
 		return false
