@@ -121,12 +121,9 @@ func matchFrom(line []byte, pattern *string) bool {
 				fmt.Println(i)
 			}
 		} else {
-			if pt != li { // normal pattern
-				if i <= len(*pattern)-1 && (*pattern)[i+1] == '+' {
-					fmt.Println(string(pt), "here")
-
-					return true
-				}
+			if pt == li && i < len(*pattern)-1 && rune((*pattern)[i+1]) == '+' {
+				return true
+			} else if pt != li { // normal pattern
 				return false
 			}
 		}
