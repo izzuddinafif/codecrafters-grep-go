@@ -49,7 +49,21 @@ func CheckPatternMatch(line []byte, pattern *string) bool {
 	if len(line) == 0 {
 		return false
 	}
-
+	if (*pattern)[0] == '^' {
+		i := bytes.Index([]byte(*pattern), []byte{byte('^')})
+		fmt.Println(i)
+		if i+1 >= len(*pattern) {
+			return false
+		}
+		str := (*pattern)[i+1:]
+		fmt.Println(str, string(line))
+		if !bytes.HasPrefix(line, []byte(str)) {
+			fmt.Println("here")
+			return false
+		} else {
+			return true
+		}
+	}
 	// Try to match the pattern starting from each position in the line
 	for j := 0; j < len(line); j++ {
 		fmt.Println("iteration", j)
@@ -67,17 +81,7 @@ func matchFrom(line []byte, pattern *string) bool {
 		pt := rune((*pattern)[i])
 		li := rune(line[j])
 
-		if pt == '^' {
-			i++
-			if i >= len(*pattern) {
-				return false
-			}
-			str := (*pattern)[i:]
-			fmt.Println(str, string(line))
-			if !bytes.HasPrefix(line, []byte(str)) {
-				return false
-			}
-		} else if pt == '\\' {
+		if pt == '\\' {
 			i++
 			if i >= len(*pattern) {
 				return false
