@@ -73,6 +73,7 @@ func matchFrom(line []byte, pattern *string) bool {
 				return false
 			}
 			str := (*pattern)[i:]
+			fmt.Println(str, string(line))
 			if !bytes.HasPrefix(line, []byte(str)) {
 				return false
 			}
