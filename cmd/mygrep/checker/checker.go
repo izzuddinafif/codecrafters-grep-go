@@ -119,29 +119,33 @@ func matchFrom(line []byte, pattern *string) bool {
 				fmt.Println(i)
 			}
 			i = end
+		} else if pt == '.' {
+			i++
+			j++
+			continue
 		} else {
 			if i < len(*pattern)-1 && rune((*pattern)[i+1]) == '+' {
 				fmt.Println(string(pt), string(rune((*pattern)[i+1])))
 				if pt != li {
 					return false
 				}
+				// match as many as possible
 				for j < len(line) && line[j] == byte(pt) {
 					j++
 				}
-				i += 2
+				i += 2 // skip the character and '+'
 				continue
 			} else if i < len(*pattern)-1 && rune((*pattern)[i+1]) == '?' {
 				fmt.Println(string(pt), string(rune((*pattern)[i+1])))
 				for j < len(line) && line[j] == byte(pt) {
 					j++
 				}
-				i += 2
+				i += 2 // skip the character and '?'
 				continue
 			} else if pt != li { // normal pattern
 				return false
 			}
 		}
-
 		i++
 		j++
 		fmt.Println(i, j)
