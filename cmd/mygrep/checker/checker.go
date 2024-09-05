@@ -3,6 +3,7 @@ package checker
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"unicode/utf8"
 
 	h "github.com/codecrafters-io/grep-starter-go/cmd/mygrep/helper"
@@ -85,7 +86,7 @@ func matchFrom(line []byte, pattern *string) bool {
 	for i < len(*pattern) && j < len(line) {
 		pt := rune((*pattern)[i])
 		li := rune(line[j])
-
+		fmt.Println("pt = ", string(pt))
 		if pt == '\\' {
 			i++
 			if i >= len(*pattern) {
@@ -122,6 +123,27 @@ func matchFrom(line []byte, pattern *string) bool {
 		} else if pt == '.' {
 			i++
 			j++
+			continue
+		} else if pt == '(' {
+			end := strings.LastIndex(*pattern, ")")
+			if end == -1 {
+				return false
+			}
+			if i >= len(*pattern) {
+				return false
+			}
+			str := (*pattern)[i+1 : end]
+			orIndex := strings.Index(str, "|")
+			str2 := str[:orIndex]
+			str1 := str[orIndex+1:]
+			ln := line[j:]
+			fmt.Println("ln: ", string(ln))
+			fmt.Println(str1, str2)
+			if !matchFrom(ln, &str1) && !matchFrom(ln, &str2) {
+				return false
+			}
+			fmt.Println("this should print")
+			i = end + 1
 			continue
 		} else {
 			if i < len(*pattern)-1 && rune((*pattern)[i+1]) == '+' {
